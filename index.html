@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Le Carnet de Cocktails</title>
+<meta name="theme-color" content="#c2410c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cocktails">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#fbf6ef;--card:#fff;--ink:#2a1f1a;--mute:#7a6a60;--acc:#c2410c;--line:#eadfd2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1412;--card:#271c19;--ink:#f6ece4;--mute:#b9a89c;--acc:#fb923c;--line:#3a2b26}}
+:root[data-theme="dark"]{--bg:#1b1412;--card:#271c19;--ink:#f6ece4;--mute:#b9a89c;--acc:#fb923c;--line:#3a2b26}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,'Times New Roman',serif;line-height:1.5}
+header{text-align:center;padding:48px 20px 24px}
+h1{margin:0;font-size:clamp(2rem,6vw,3.2rem);letter-spacing:.5px}
+header p{color:var(--mute);margin:8px 0 0;font-family:system-ui,sans-serif}
+.tools{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:0 20px 24px;font-family:system-ui,sans-serif}
+input[type=search]{padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);min-width:220px}
+.chip{padding:10px 16px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);cursor:pointer}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;max-width:1100px;margin:0 auto;padding:0 20px 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card .em{font-size:2.2rem}
+.card h2{margin:6px 0 2px;font-size:1.3rem}
+.tag{display:inline-block;font:600 .72rem system-ui,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--acc)}
+.card p{color:var(--mute);margin:8px 0;font-size:.95rem}
+.card ul{margin:8px 0 0;padding-left:18px;font-family:system-ui,sans-serif;font-size:.9rem}
+.empty{text-align:center;color:var(--mute);grid-column:1/-1}
+footer{max-width:700px;margin:0 auto;padding:10px 20px 40px;text-align:center;color:var(--mute);font:.85rem system-ui,sans-serif}
+#gate{position:fixed;inset:0;background:rgba(20,12,10,.92);display:flex;align-items:center;justify-content:center;padding:20px;z-index:10}
+#gate[hidden]{display:none}
+.box{background:var(--card);border-radius:20px;padding:32px 26px;max-width:420px;width:100%;text-align:center;font-family:system-ui,sans-serif}
+.box h2{font-family:Georgia,serif;margin:0 0 8px}
+.box input[type=date]{padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);margin:12px 0;width:100%}
+.btn{padding:12px 22px;border:0;border-radius:999px;background:var(--acc);color:#fff;font-weight:600;cursor:pointer;width:100%}
+#err{color:#dc2626;min-height:1.4em;margin:10px 0 0;font-size:.95rem}
+.small{color:var(--mute);font-size:.8rem;margin-top:14px}
+main[inert]{filter:blur(8px);pointer-events:none;user-select:none}
+
+.card[role=button]{cursor:pointer;transition:transform .15s,border-color .15s}
+.card[role=button]:hover,.card[role=button]:focus-visible{transform:translateY(-3px);border-color:var(--acc);outline:none}
+.calc-hint{margin-top:12px;color:var(--acc);font:600 .85rem system-ui,sans-serif}
+#calc{position:fixed;inset:0;background:rgba(20,12,10,.7);display:flex;align-items:center;justify-content:center;padding:16px;z-index:5;overflow:auto}
+#calc[hidden]{display:none}
+.cbox{background:var(--card);border-radius:20px;padding:24px;max-width:460px;width:100%;font-family:system-ui,sans-serif;max-height:100%;overflow:auto}
+.cbox h2{margin:0 0 4px;font-family:Georgia,serif}
+.cbox .hint{color:var(--mute);font-size:.85rem;margin:0 0 12px}
+.crow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.crow .chip{padding:6px 12px}
+.row{display:flex;align-items:center;gap:8px;margin:8px 0}
+.row label{flex:1}
+.row input,#ctot{width:84px;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:1rem}
+.row input.man{border-color:var(--acc);font-weight:700}
+.unl{border:0;background:none;color:var(--acc);font-size:1.2rem;cursor:pointer;width:24px}
+#cinfo{font-weight:600;margin:14px 0 4px}
+.cx{color:var(--mute);font-size:.9rem;margin:0}
+.cact{display:flex;gap:8px;margin-top:16px}
+.btn.sec{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+
+.card{position:relative}
+.act{position:absolute;top:12px;right:12px;display:flex;gap:6px}
+.ic{border:1px solid var(--line);background:var(--bg);border-radius:999px;width:34px;height:34px;font-size:1rem;cursor:pointer;color:var(--ink)}
+.ic.on{color:#e11d48;border-color:#e11d48}
+#soi,#lst{position:fixed;inset:0;background:rgba(20,12,10,.7);display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow:auto}
+#soi{z-index:6}#lst{z-index:7;align-items:center}
+#soi[hidden],#lst[hidden]{display:none}
+.big{margin-bottom:90px}
+#slistb{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));width:auto;padding:14px 38px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.qb{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:1.1rem;cursor:pointer}
+#sadd,#sqty{padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:1rem}
+#sadd{flex:1;min-width:140px}#sqty{width:70px}
+.tbl{width:100%;border-collapse:collapse;font-size:.9rem}
+.tbl td{padding:6px 4px;border-bottom:1px solid var(--line)}
+.tbl td:nth-child(2){font-weight:700;white-space:nowrap}
+.tbl td:nth-child(3){color:var(--mute);font-size:.82rem}
+header .chip{margin-top:14px}
+
+html{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+button,.card,label.btn{touch-action:manipulation}
+input,select,textarea{font-size:16px}
+.tools{position:sticky;top:0;z-index:3;background:var(--bg);padding-top:10px;padding-bottom:12px}
+header .chip{margin:14px 4px 0}
+#fab{display:none}
+#bak{position:fixed;inset:0;background:rgba(20,12,10,.7);display:flex;align-items:center;justify-content:center;padding:16px;z-index:7;overflow:auto}
+#bak[hidden]{display:none}
+#btxt{width:100%;height:110px;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:12px ui-monospace,monospace}
+label.btn{display:block;cursor:pointer}
+@media (max-width:700px){
+ header{padding:28px 16px 8px}
+ .tools{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;gap:8px;padding-left:12px;padding-right:12px;scrollbar-width:none}
+ .tools::-webkit-scrollbar{display:none}
+ .tools input[type=search]{flex:0 0 200px;min-width:0}
+ .chip{white-space:nowrap;flex:0 0 auto;min-height:44px}
+ .grid{grid-template-columns:1fr;gap:12px;padding:0 12px 100px}
+ .ic,.qb{width:44px;height:44px}
+ #calc,#soi,#lst,#bak{padding:0;align-items:flex-end}
+ .cbox{border-radius:20px 20px 0 0;max-height:92%;width:100%;max-width:none}
+ .big{margin-bottom:0;padding-bottom:100px}
+ #fab{display:block;position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:3;width:auto;padding:14px 20px;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+ footer{padding-bottom:90px}
+}
+</style>
+</head>
+<body>
+
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gt">
+  <div class="box">
+    <div style="font-size:2.4rem">🍸</div>
+    <h2 id="gt">Site réservé aux adultes</h2>
+    <p>Ce site parle d'alcool. Merci de confirmer que vous avez <strong>18 ans ou plus</strong>.</p>
+    <label for="dob">Votre date de naissance</label>
+    <input type="date" id="dob">
+    <button class="btn" id="ok">J'ai 18 ans ou plus, entrer</button>
+    <p id="err" role="alert"></p>
+    <p class="small">L'abus d'alcool est dangereux pour la santé, à consommer avec modération.</p>
+  </div>
+</div>
+
+<main id="app" inert>
+  <header>
+    <h1>Le Carnet de Cocktails</h1>
+    <p>Un petit recueil de recettes à partager entre amis</p>
+    <button class="chip" id="soib">🎉 Ma soirée (<span id="soic">0</span>)</button><button class="chip" id="bakb">💾 Sauvegarde</button>
+  </header>
+  <div class="tools">
+    <input type="search" id="q" placeholder="Rechercher un cocktail ou un ingrédient…" aria-label="Rechercher">
+    <button class="chip on" data-f="all">Tous</button>
+    <button class="chip" data-f="alcool">Avec alcool</button>
+    <button class="chip" data-f="sans">Sans alcool</button>
+    <button class="chip" data-f="shooter">Shooters</button>
+    <button class="chip" data-f="fav">❤ Favoris</button>
+  </div>
+  <section class="grid" id="grid"></section>
+  <button class="btn" id="fab">🎉 Soirée (<span id="soic2">0</span>)</button>
+  <footer>Inspiré par 1001cocktails.com. Les cocktails alcoolisés sont réservés aux personnes majeures. Ne conduisez pas après avoir bu.</footer>
+</main>
+
+<div id="calc" hidden role="dialog" aria-modal="true" aria-labelledby="ctitle">
+  <div class="cbox">
+    <h2 id="ctitle"></h2>
+    <p class="hint">Change la contenance du verre, ou modifie une dose à la main : les autres s'ajustent pour remplir le verre. ↺ remet une dose en automatique. Prévois un peu moins de liquide si tu mets des glaçons.</p>
+    <div class="crow">
+      <label for="ctot"><strong>Contenance du verre</strong></label>
+      <input type="number" id="ctot" min="1" step="1" inputmode="decimal"><span>cl</span>
+    </div>
+    <div class="crow" id="cpre">
+      <button class="chip" data-s="4">4</button><button class="chip" data-s="6">6</button><button class="chip" data-s="10">10</button><button class="chip" data-s="15">15</button><button class="chip" data-s="20">20</button><button class="chip" data-s="25">25</button><button class="chip" data-s="30">30</button><button class="chip" data-s="40">40</button>
+    </div>
+    <div id="clist"></div>
+    <p id="cinfo"></p>
+    <p class="cx" id="cx"></p>
+    <div class="cact"><button class="btn sec" id="creset">Réinitialiser</button><button class="btn" id="cclose">Fermer</button></div>
+  </div>
+</div>
+
+<div id="soi" hidden role="dialog" aria-modal="true" aria-labelledby="stt">
+  <div class="cbox big">
+    <h2 id="stt">🎉 Ma soirée</h2>
+    <p class="hint">Choisis tes cocktails et le nombre de verres de chacun (ex. 10 Mojito + 20 Margarita). Appuie ensuite sur « Liste » pour savoir quoi acheter.</p>
+    <div class="crow"><select id="sadd" aria-label="Cocktail"></select><input type="number" id="sqty" min="1" value="10" aria-label="Nombre de verres"><button class="chip" id="sbtn">Ajouter</button></div>
+    <div id="slist"></div>
+    <p id="stot" style="font-weight:600"></p>
+    <div class="cact"><button class="btn sec" id="sclose">Fermer</button></div>
+  </div>
+  <button class="btn" id="slistb">🛒 Liste</button>
+</div>
+<div id="lst" hidden role="dialog" aria-modal="true" aria-labelledby="ltt">
+  <div class="cbox">
+    <h2 id="ltt">🛒 Liste de courses</h2>
+    <div id="lbody"></div>
+    <div class="cact"><button class="btn sec" id="lcopy">Copier</button><button class="btn" id="lclose">Fermer</button></div>
+  </div>
+</div>
+
+<div id="bak" hidden role="dialog" aria-modal="true" aria-labelledby="btt">
+  <div class="cbox">
+    <h2 id="btt">💾 Sauvegarde</h2>
+    <p class="hint">Tes favoris et ta soirée sont enregistrés sur cet appareil. Télécharge une sauvegarde pour ne rien perdre (nouveau téléphone, données effacées…), puis restaure-la ici.</p>
+    <textarea id="btxt" aria-label="Code de sauvegarde"></textarea>
+    <p id="bmsg" class="cx"></p>
+    <div class="cact"><button class="btn" id="bdl">Télécharger</button><button class="btn sec" id="brest">Restaurer</button></div>
+    <div class="cact"><label class="btn sec" style="text-align:center">Choisir un fichier<input type="file" id="bfile" accept=".json,application/json" hidden></label><button class="btn sec" id="bclose">Fermer</button></div>
+  </div>
+</div>
+
+<script>
+var C=[
+{n:"Mojito",e:"🌿",t:"alcool",d:"Rhum blanc, menthe fraîche",p:"Le grand classique cubain, frais et acidulé.",i:[["Rhum blanc",5,1],["Jus de citron vert",2],["Sirop de sucre",1.5],["Eau gazeuse",8]],x:["Menthe fraîche","Glaçons"]},
+{n:"Margarita",e:"🍋",t:"alcool",d:"Tequila, citron vert",p:"Un cocktail vif servi avec le bord du verre givré de sel.",i:[["Tequila",5,1],["Triple sec",2,1],["Jus de citron vert",2.5]],x:["Sel (bord du verre)"]},
+{n:"Piña Colada",e:"🍍",t:"alcool",d:"Rhum, ananas, coco",p:"Onctueux et tropical, parfait pour l'été.",i:[["Rhum blanc",5,1],["Jus d'ananas",10],["Crème de coco",3.5]],x:["Glace pilée"]},
+{n:"Cosmopolitan",e:"🍸",t:"alcool",d:"Vodka, cranberry",p:"Élégant et légèrement acidulé.",i:[["Vodka",4,1],["Triple sec",1.5,1],["Jus de cranberry",3],["Jus de citron vert",1.5]],x:[]},
+{n:"Spritz",e:"🍊",t:"alcool",d:"Apéritif, prosecco",p:"Le rendez-vous de l'apéro, léger et amer.",i:[["Prosecco",9,1],["Apérol",6,1],["Eau gazeuse",3]],x:["Tranche d'orange","Glaçons"]},
+{n:"Old Fashioned",e:"🥃",t:"alcool",d:"Whisky, bitter",p:"Un cocktail court, ambré et serré à déguster lentement.",i:[["Bourbon ou whisky",6,1],["Sirop de sucre",0.5]],x:["2 à 3 traits d'Angostura","Zeste d'orange"]},
+{n:"Daiquiri",e:"🍹",t:"alcool",d:"Rhum, citron vert",p:"Trois ingrédients seulement, tout est dans l'équilibre.",i:[["Rhum blanc",6,1],["Jus de citron vert",2.5],["Sirop de sucre",1.5]],x:[]},
+{n:"Moscow Mule",e:"🫚",t:"alcool",d:"Vodka, ginger beer",p:"Piquant et rafraîchissant, souvent servi dans une tasse en cuivre.",i:[["Vodka",5,1],["Jus de citron vert",1.5],["Ginger beer",12]],x:["Glaçons"]},
+{n:"Virgin Mojito",e:"🌱",t:"sans",d:"Menthe, citron vert",p:"La version sans alcool du Mojito, aussi fraîche.",i:[["Jus de citron vert",3],["Sirop de sucre",2],["Eau gazeuse",15]],x:["Menthe fraîche","Glaçons"]},
+{n:"Shirley Temple",e:"🍒",t:"sans",d:"Ginger ale, grenadine",p:"Doux et pétillant, un classique sans alcool.",i:[["Ginger ale",20],["Sirop de grenadine",2]],x:["Cerise","Rondelle de citron"]},
+{n:"Citronnade maison",e:"🍋",t:"sans",d:"Citron, eau pétillante",p:"Simple, désaltérante et facile à préparer en grande quantité.",i:[["Jus de citron",4],["Sirop de sucre",3],["Eau pétillante",18]],x:["Glaçons"]}
+];
+var X=`Negroni|a|Gin:3:a;Campari:3:a;Vermouth rouge:3:a|Zeste d'orange,Glaçons
+Americano|a|Campari:3:a;Vermouth rouge:3:a;Eau gazeuse:6|Zeste d'orange,Glaçons
+Manhattan|a|Whisky rye:5:a;Vermouth rouge:2:a|2 traits d'Angostura,Cerise
+Martini dry|a|Gin:6:a;Vermouth sec:1:a|Olive ou zeste de citron
+Gin Tonic|a|Gin:5:a;Tonic:15|Citron,Glaçons
+Gimlet|a|Gin:6:a;Jus de citron vert:2;Sirop de sucre:1.5|
+Tom Collins|a|Gin:5:a;Jus de citron:3;Sirop de sucre:1.5;Eau gazeuse:8|Glaçons
+Gin Fizz|a|Gin:5:a;Jus de citron:3;Sirop de sucre:1.5;Eau gazeuse:6|
+Whisky Sour|a|Whisky:5:a;Jus de citron:3;Sirop de sucre:2|Cerise
+Amaretto Sour|a|Amaretto:5:a;Jus de citron:3;Sirop de sucre:0.5|
+Pisco Sour|a|Pisco:6:a;Jus de citron vert:3;Sirop de sucre:2|Blanc d'oeuf
+Caipirinha|a|Cachaça:6:a;Jus de citron vert:2;Sirop de sucre:2|Citron vert en quartiers,Glace pilée
+Caipiroska|a|Vodka:6:a;Jus de citron vert:2;Sirop de sucre:2|Glace pilée
+Cuba Libre|a|Rhum:5:a;Cola:12;Jus de citron vert:1|Glaçons
+Long Island Iced Tea|a|Vodka:1.5:a;Gin:1.5:a;Rhum blanc:1.5:a;Tequila:1.5:a;Triple sec:1.5:a;Jus de citron:2.5;Sirop de sucre:1.5;Cola:4|Glaçons
+Tequila Sunrise|a|Tequila:5:a;Jus d'orange:12;Sirop de grenadine:1.5|Glaçons
+Sex on the Beach|a|Vodka:4:a;Liqueur de pêche:2:a;Jus d'orange:4;Jus de cranberry:4|Glaçons
+Bloody Mary|a|Vodka:4.5:a;Jus de tomate:9;Jus de citron:1.5|Worcestershire,Tabasco,Sel,Poivre,Céleri
+Screwdriver|a|Vodka:5:a;Jus d'orange:10|Glaçons
+Harvey Wallbanger|a|Vodka:3:a;Galliano:1.5:a;Jus d'orange:9|Glaçons
+Black Russian|a|Vodka:5:a;Liqueur de café:2:a|Glaçons
+White Russian|a|Vodka:5:a;Liqueur de café:2:a;Crème liquide:3|Glaçons
+Espresso Martini|a|Vodka:5:a;Liqueur de café:2:a;Café espresso:3|3 grains de café
+Dark 'n' Stormy|a|Rhum brun:5:a;Ginger beer:10;Jus de citron vert:1|Glaçons
+Ti' Punch|a|Rhum agricole:6:a;Sirop de canne:1.5|Citron vert
+Planter's Punch|a|Rhum brun:5:a;Jus d'orange:3;Jus d'ananas:3;Jus de citron vert:2;Sirop de grenadine:1|Glaçons
+Mai Tai|a|Rhum brun:4:a;Rhum blanc:2:a;Triple sec:1.5:a;Jus de citron vert:3;Sirop d'orgeat:1.5|Menthe,Glace pilée
+Zombie|a|Rhum blanc:3:a;Rhum brun:3:a;Jus de citron vert:2;Jus d'ananas:3;Sirop de grenadine:1;Sirop de sucre:1|Menthe
+Hurricane|a|Rhum brun:4:a;Rhum blanc:4:a;Jus de fruit de la passion:4;Jus d'orange:2;Jus de citron vert:1;Sirop de grenadine:1|Glaçons
+Blue Lagoon|a|Vodka:4:a;Curaçao bleu:2:a;Limonade:12|Cerise,Glaçons
+Blue Hawaiian|a|Rhum blanc:3:a;Curaçao bleu:2:a;Jus d'ananas:6;Crème de coco:2|Glace pilée
+Singapore Sling|a|Gin:3:a;Liqueur de cerise:1.5:a;Bénédictine:0.75:a;Jus d'ananas:12;Jus de citron vert:1.5|Glaçons
+Bellini|a|Prosecco:10:a;Purée de pêche:5|
+Mimosa|a|Champagne:7.5:a;Jus d'orange:7.5|
+Kir|a|Vin blanc:9:a;Crème de cassis:1:a|
+Kir Royal|a|Champagne:9:a;Crème de cassis:1:a|
+French 75|a|Gin:3:a;Jus de citron:1.5;Sirop de sucre:1.5;Champagne:6:a|Zeste de citron
+Hugo|a|Prosecco:9:a;Sirop de fleur de sureau:3;Eau gazeuse:3|Menthe,Citron vert,Glaçons
+Sangria|a|Vin rouge:20:a;Jus d'orange:5;Brandy:2:a;Sirop de sucre:1|Fruits en morceaux,Glaçons
+Irish Coffee|a|Whiskey irlandais:4:a;Café chaud:12;Sirop de sucre:1;Crème fouettée:3|
+Grasshopper|a|Crème de menthe:3:a;Crème de cacao blanche:3:a;Crème liquide:3|
+Brandy Alexander|a|Cognac:3:a;Crème de cacao brune:3:a;Crème liquide:3|Noix muscade
+Sidecar|a|Cognac:5:a;Triple sec:2:a;Jus de citron:2|Bord sucré
+Between the Sheets|a|Rhum blanc:2:a;Cognac:2:a;Triple sec:2:a;Jus de citron:1.5|
+Jack Rose|a|Calvados:5:a;Jus de citron vert:2;Sirop de grenadine:1.5|
+Stinger|a|Cognac:5:a;Crème de menthe blanche:2:a|Glace pilée
+Rusty Nail|a|Whisky:5:a;Drambuie:2.5:a|Glaçons
+Godfather|a|Whisky:5:a;Amaretto:2.5:a|Glaçons
+Mint Julep|a|Bourbon:6:a;Sirop de sucre:1|Menthe fraîche,Glace pilée
+Paloma|a|Tequila:5:a;Jus de pamplemousse:6;Jus de citron vert:1;Eau gazeuse:6|Sel,Glaçons
+Tommy's Margarita|a|Tequila:5:a;Jus de citron vert:3;Sirop d'agave:1.5|Glaçons
+Mezcal Mule|a|Mezcal:5:a;Jus de citron vert:1.5;Ginger beer:10|Glaçons
+Kentucky Mule|a|Bourbon:5:a;Jus de citron vert:1.5;Ginger beer:10|Glaçons
+London Mule|a|Gin:5:a;Jus de citron vert:1.5;Ginger beer:10|Glaçons
+Lemon Drop|a|Vodka:5:a;Triple sec:1.5:a;Jus de citron:3;Sirop de sucre:1.5|Bord sucré
+Kamikaze|a|Vodka:3:a;Triple sec:3:a;Jus de citron vert:3|
+Vesper|a|Gin:6:a;Vodka:2:a;Lillet blanc:1:a|Zeste de citron
+Gibson|a|Gin:6:a;Vermouth sec:1:a|Oignon cocktail
+Bronx|a|Gin:4.5:a;Vermouth sec:1:a;Vermouth rouge:1:a;Jus d'orange:3|
+Aviation|a|Gin:4.5:a;Liqueur de marasquin:1.5:a;Jus de citron:1.5;Crème de violette:0.75:a|Cerise
+Last Word|a|Gin:2.25:a;Chartreuse verte:2.25:a;Liqueur de marasquin:2.25:a;Jus de citron vert:2.25|
+Paper Plane|a|Bourbon:2.25:a;Apérol:2.25:a;Amaro:2.25:a;Jus de citron:2.25|
+Boulevardier|a|Bourbon:4.5:a;Campari:3:a;Vermouth rouge:3:a|Zeste d'orange
+Sazerac|a|Cognac ou rye:5:a;Sirop de sucre:0.75;Absinthe:0.5:a|Peychaud's bitters,Zeste de citron
+Vieux Carré|a|Whisky rye:2.5:a;Cognac:2.5:a;Vermouth rouge:2.5:a;Bénédictine:1:a|2 traits d'Angostura
+Hot Toddy|a|Whisky:4:a;Miel:1.5;Eau chaude:12;Jus de citron:1.5|Bâton de cannelle,Clou de girofle
+Gin Basil Smash|a|Gin:6:a;Jus de citron:2.5;Sirop de sucre:1.5|Basilic frais
+Bramble|a|Gin:5:a;Jus de citron:2.5;Sirop de sucre:1.5;Crème de mûre:2:a|Mûres,Glace pilée
+Clover Club|a|Gin:5:a;Jus de citron:2;Sirop de framboise:1.5|Blanc d'oeuf
+Southside|a|Gin:6:a;Jus de citron vert:2.5;Sirop de sucre:1.5|Menthe
+Rob Roy|a|Whisky écossais:5:a;Vermouth rouge:2:a|Cerise
+Strawberry Daiquiri|a|Rhum blanc:5:a;Purée de fraise:4;Jus de citron vert:2;Sirop de sucre:1.5|Glace pilée
+Mojito fraise|a|Rhum blanc:5:a;Purée de fraise:3;Jus de citron vert:2;Eau gazeuse:6|Menthe,Glaçons
+Pornstar Martini|a|Vodka vanille:4:a;Purée de fruit de la passion:3;Jus de citron vert:1.5;Sirop de vanille:1.5;Prosecco:6:a|
+Limoncello Spritz|a|Limoncello:4:a;Prosecco:9:a;Eau gazeuse:3|Menthe,Glaçons
+Campari Spritz|a|Campari:6:a;Prosecco:9:a;Eau gazeuse:3|Tranche d'orange,Glaçons
+Rossini|a|Prosecco:10:a;Purée de fraise:5|
+Puccini|a|Prosecco:10:a;Jus de mandarine:5|
+Tinto de Verano|a|Vin rouge:12:a;Limonade:12|Citron,Glaçons
+Michelada|a|Bière:30:a;Jus de citron vert:3;Jus de tomate:6|Sauce piquante,Sel
+Panaché|a|Bière:20:a;Limonade:20|
+Monaco|a|Bière:25:a;Limonade:15;Sirop de grenadine:2|
+Bahama Mama|a|Rhum brun:3:a;Rhum à la noix de coco:3:a;Jus d'ananas:6;Jus d'orange:3;Sirop de grenadine:1|Glaçons
+Rum Runner|a|Rhum blanc:3:a;Rhum brun:3:a;Liqueur de banane:2:a;Liqueur de mûre:2:a;Jus d'ananas:4;Jus d'orange:4;Sirop de grenadine:1|Glaçons
+Cape Codder|a|Vodka:5:a;Jus de cranberry:12|Citron vert,Glaçons
+Sea Breeze|a|Vodka:4:a;Jus de cranberry:9;Jus de pamplemousse:3|Glaçons
+Bay Breeze|a|Vodka:4:a;Jus de cranberry:4;Jus d'ananas:4|Glaçons
+Virgin Colada|s|Jus d'ananas:12;Crème de coco:4;Jus de citron vert:1|Glace pilée
+Virgin Mary|s|Jus de tomate:12;Jus de citron:1.5|Worcestershire,Tabasco,Céleri
+Cendrillon|s|Jus d'orange:8;Jus d'ananas:8;Jus de citron:2;Sirop de grenadine:1.5|Glaçons
+Mango Lassi|s|Yaourt:10;Purée de mangue:10;Lait:5|Glaçons
+Thé glacé maison|s|Thé infusé froid:20;Jus de citron:2;Sirop de sucre:2|Glaçons
+Tropical sans alcool|s|Jus d'ananas:6;Jus de mangue:6;Jus d'orange:4;Jus de citron vert:1|Glaçons
+Arnold Palmer|s|Thé glacé:12;Limonade:12|Glaçons
+Roy Rogers|s|Cola:20;Sirop de grenadine:2|Cerise,Glaçons
+Sunrise sans alcool|s|Jus d'orange:15;Sirop de grenadine:2|Glaçons
+Mojito framboise sans alcool|s|Purée de framboise:3;Jus de citron vert:2;Eau gazeuse:12|Menthe,Glaçons
+Ginger Lemonade|s|Jus de citron:3;Ginger beer:12;Sirop de sucre:1.5|Glaçons
+Cucumber Cooler|s|Jus de concombre:6;Jus de citron vert:2;Sirop de sucre:1.5;Eau gazeuse:10|Menthe,Concombre
+Pamplemousse Tonic|s|Jus de pamplemousse:6;Jus d'orange:3;Tonic:10|Glaçons
+Orgasm|a|Amaretto:2:a;Liqueur de café:2:a;Crème irlandaise:2:a;Crème liquide:2|Glaçons
+Bora Bora|a|Vodka:4:a;Jus d'ananas:8;Jus de fruit de la passion:4;Jus de citron vert:1;Sirop de grenadine:1|Glaçons
+Bora Bora sans alcool|s|Jus d'ananas:8;Jus de fruit de la passion:4;Jus de citron vert:1;Sirop de grenadine:1|Glaçons`;
+X.split("\n").forEach(function(l){var p=l.split("|"),a=p[1]=="a",it=p[2].split(";").map(function(z){var k=z.split(":");return k[2]?[k[0],+k[1],1]:[k[0],+k[1]]}),tot=it.reduce(function(s,y){return s+y[1]},0);C.push({n:p[0],e:a?"🍸":"🧃",t:a?"alcool":"sans",p:"Recette de base : "+Math.round(tot*10)/10+" cl. Clique pour adapter les doses.",i:it,x:p[3]?p[3].split(","):[]})});
+var H=`B-52|Liqueur de café:2:a;Crème irlandaise:2:a;Grand Marnier:2:a|À verser en couches
+B-53|Liqueur de café:2:a;Sambuca:2:a;Vodka:2:a|À verser en couches
+Kamikaze shooter|Vodka:2:a;Triple sec:2:a;Jus de citron vert:2|
+Lemon Drop shooter|Vodka:3:a;Triple sec:1:a;Jus de citron:1.5|Bord sucré
+Jägerbomb|Jägermeister:4:a;Boisson énergisante:12|
+Tequila Slammer|Tequila:3:a;Limonade:3|Frapper le verre sur la table
+Tequila Shot|Tequila:4:a|Sel,Citron
+Pickleback|Whiskey:4:a;Jus de cornichon:4|
+Mind Eraser|Vodka:2:a;Liqueur de café:2:a;Eau gazeuse:2|À boire à la paille
+Washington Apple|Whisky canadien:2:a;Liqueur de pomme:2:a;Jus de cranberry:2|
+Baby Guinness|Liqueur de café:3:a;Crème irlandaise:2:a|À verser en couches
+Melon Ball|Liqueur de melon:2:a;Vodka:2:a;Jus d'ananas:2|
+Gummy Bear|Vodka:2:a;Liqueur de pêche:1:a;Jus de citron:1;Sirop de grenadine:0.5|
+Green Tea Shot|Whiskey:2:a;Liqueur de pêche:1:a;Jus de citron:1;Limonade:1|
+Vegas Bomb|Whisky canadien:1.5:a;Liqueur de pêche:1.5:a;Jus de cranberry:1.5;Boisson énergisante:1.5|
+Purple Hooter|Vodka:2:a;Liqueur de framboise:1:a;Jus de citron vert:1|
+Woo Woo|Vodka:2:a;Liqueur de pêche:2:a;Jus de cranberry:2|
+Mexican Flag|Sirop de grenadine:1.5;Jus de citron vert:1.5;Tequila:1.5:a|À verser en couches
+Chocolate Cake|Vodka:2:a;Frangelico:2:a|Sucre,Citron
+Café Amaretto Shooter|Liqueur de café:2:a;Amaretto:2:a;Crème irlandaise:2:a|À verser en couches
+Absinthe Shot|Absinthe:3:a|Sucre,Eau fraîche
+Sambuca con mosca|Sambuca:4:a|3 grains de café
+Limoncello Shot|Limoncello:4:a|Bien frappé
+Vodka Shot|Vodka:4:a|Citron
+Pineapple Upside Down|Vodka vanille:2:a;Jus d'ananas:2;Sirop de grenadine:0.5|
+Lemon Meringue|Vodka vanille:2:a;Limoncello:1:a;Jus de citron:1|
+Tropical Shot|Rhum blanc:2:a;Liqueur de coco:1:a;Jus d'ananas:2|
+Cherry Cola Shot|Vodka:2:a;Liqueur de cerise:1:a;Cola:2|
+Prairie Fire|Tequila:4:a|2 traits de Tabasco
+Blue Kamikaze|Vodka:2:a;Curaçao bleu:2:a;Jus de citron vert:2|
+Tequila Sunrise Shot|Tequila:2:a;Jus d'orange:3;Sirop de grenadine:0.5|
+Rum Shot|Rhum:4:a|Citron vert
+Whisky Shot|Whisky:4:a|
+Apple Pie Shot|Vodka:2:a;Jus de pomme:2;Sirop de cannelle:0.5|
+Fuzzy Navel Shot|Liqueur de pêche:2:a;Jus d'orange:2|
+Screwdriver Shot|Vodka:2:a;Jus d'orange:2|
+Cosmopolitan Shot|Vodka:2:a;Triple sec:1:a;Jus de cranberry:1;Jus de citron vert:0.5|
+Mojito Shot|Rhum blanc:2:a;Jus de citron vert:1;Sirop de sucre:0.5;Eau gazeuse:1|Menthe
+Margarita Shot|Tequila:2:a;Triple sec:1:a;Jus de citron vert:1|Sel
+Daiquiri Shot|Rhum blanc:3:a;Jus de citron vert:1;Sirop de sucre:0.5|
+Piña Colada Shot|Rhum blanc:2:a;Jus d'ananas:2;Crème de coco:1|
+Blue Lagoon Shot|Vodka:2:a;Curaçao bleu:1:a;Limonade:2|
+Cuba Libre Shot|Rhum:2:a;Cola:2;Jus de citron vert:0.5|
+Jelly Bean|Anisette:2:a;Liqueur de mûre:2:a|
+Kir Shot|Vin blanc:3:a;Crème de cassis:1:a|
+Banana Split|Liqueur de banane:2:a;Crème de cacao brune:1:a;Crème irlandaise:1:a|À verser en couches
+Peppermint Patty|Crème de menthe:2:a;Crème de cacao blanche:2:a|
+Mudslide Shot|Vodka:1.5:a;Liqueur de café:1.5:a;Crème irlandaise:1.5:a|
+Red Snapper|Whisky canadien:2:a;Amaretto:1:a;Jus de cranberry:1|
+Rusty Nail Shot|Whisky:3:a;Drambuie:1:a|
+Godfather Shot|Whisky:2:a;Amaretto:2:a|
+Sidecar Shot|Cognac:2:a;Triple sec:1:a;Jus de citron:1|
+Bloody Mary Shot|Vodka:2:a;Jus de tomate:3;Jus de citron:0.5|Tabasco,Sel,Poivre
+Cherry Bomb|Vodka:2:a;Liqueur de cerise:2:a;Boisson énergisante:2|
+Vodka Red Bull|Vodka:2:a;Boisson énergisante:6|
+Pisco Sour Shot|Pisco:3:a;Jus de citron vert:1;Sirop de sucre:0.5|
+Caipirinha Shot|Cachaça:3:a;Jus de citron vert:1;Sirop de sucre:1|
+Mint Chocolate|Liqueur de menthe:2:a;Liqueur de chocolat:2:a|
+Noisette Café|Liqueur de noisette:2:a;Liqueur de café:2:a;Crème irlandaise:1:a|
+Orange Crush Shot|Vodka:2:a;Triple sec:1:a;Jus d'orange:2;Limonade:1|
+Sour Apple|Vodka:2:a;Liqueur de pomme verte:1:a;Jus de citron:1|
+Watermelon Shot|Vodka:2:a;Triple sec:1:a;Jus de pastèque:2;Jus de citron:0.5|
+Strawberry Shortcake|Vodka vanille:2:a;Liqueur de fraise:1:a;Crème liquide:1|
+Amaretto Shot|Amaretto:4:a|
+Jäger Shot|Jägermeister:4:a|Bien frappé
+Gin Lemon Shot|Gin:2:a;Jus de citron:1;Sirop de sucre:0.5|
+Raspberry Kamikaze|Vodka:2:a;Liqueur de framboise:1:a;Jus de citron vert:1|
+Orgasm Shot|Amaretto:1.5:a;Liqueur de café:1.5:a;Crème irlandaise:1.5:a|À verser en couches
+Screaming Orgasm|Vodka:1.5:a;Amaretto:1.5:a;Liqueur de café:1.5:a;Crème irlandaise:1.5:a|
+Slippery Nipple|Sambuca:2.5:a;Crème irlandaise:2.5:a|À verser en couches
+Buttery Nipple|Liqueur de butterscotch:2.5:a;Crème irlandaise:2.5:a|À verser en couches
+Blow Job|Amaretto:2:a;Liqueur de café:2:a|Crème fouettée
+Duck Fart|Liqueur de café:2:a;Crème irlandaise:2:a;Whisky canadien:2:a|À verser en couches
+Sex on the Beach Shot|Vodka:2:a;Liqueur de pêche:1:a;Jus d'orange:1;Jus de cranberry:1|
+Jäger Coco|Jägermeister:2:a;Liqueur de coco:2:a;Jus d'ananas:2|
+Jolly Rancher|Vodka:2:a;Liqueur de pêche:1:a;Jus de cranberry:1;Jus de citron:0.5|
+Whisky cannelle Shot|Whisky à la cannelle:4:a|Bien frappé
+Mexicana|Tequila:2:a;Jus d'ananas:2;Jus de citron vert:0.5;Sirop de grenadine:0.5|
+Coco Loco|Rhum blanc:2:a;Liqueur de coco:2:a|
+Bubble Gum|Vodka:1.5:a;Liqueur de banane:1:a;Curaçao bleu:0.5:a;Jus d'ananas:1.5;Limonade:1|
+Vodka Pomme Shot|Vodka:2:a;Jus de pomme:3|
+Café Shot|Liqueur de café:3:a;Vodka:1:a|`;
+H.split("\n").forEach(function(l){var p=l.split("|"),it=p[1].split(";").map(function(z){var k=z.split(":");return k[2]?[k[0],+k[1],1]:[k[0],+k[1]]}),tot=it.reduce(function(s,y){return s+y[1]},0);C.push({n:p[0],e:"🥃",t:"alcool",s:true,p:"Shooter · recette de base : "+Math.round(tot*10)/10+" cl. Clique pour adapter les doses.",i:it,x:p[2]?p[2].split(","):[]})});
+var f="all",grid=document.getElementById("grid"),q=document.getElementById("q");
+function esc(s){return s.replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function names(c){return c.i.map(function(x){return x[0]}).concat(c.x||[])}
+function render(){
+  var s=q.value.trim().toLowerCase();
+  var r=C.filter(function(c){return (f=="all"||(f=="shooter"?c.s:f=="fav"?FAV[c.n]:c.t==f))&&(c.n+" "+c.d+" "+names(c).join(" ")).toLowerCase().indexOf(s)>-1});
+  grid.innerHTML=r.length?r.map(function(c){
+    return '<article class="card" tabindex="0" role="button" data-i="'+C.indexOf(c)+'" aria-label="Calculer les doses : '+esc(c.n)+'"><div class="act"><button class="ic fv'+(FAV[c.n]?' on':'')+'" aria-label="Favori">'+(FAV[c.n]?'♥':'♡')+'</button><button class="ic sj" aria-label="Ajouter à la soirée">🎉</button></div><div class="em">'+c.e+'</div><span class="tag">'+(c.s?"Shooter":c.t=="sans"?"Sans alcool":"Avec alcool")+'</span><h2>'+esc(c.n)+'</h2><p>'+esc(c.p)+'</p><ul>'+names(c).map(function(x){return"<li>"+esc(x)+"</li>"}).join("")+'</ul><div class="calc-hint">🧮 Calculer les doses</div></article>';
+  }).join(""):'<p class="empty">Aucun cocktail trouvé.</p>';
+}
+q.addEventListener("input",render);
+document.querySelectorAll(".tools .chip").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll(".tools .chip").forEach(function(x){x.classList.remove("on")});
+    b.classList.add("on");f=b.dataset.f;render();
+  });
+});
+
+var gate=document.getElementById("gate"),app=document.getElementById("app"),err=document.getElementById("err");
+function open(){gate.hidden=true;app.removeAttribute("inert")}
+try{if(sessionStorage.getItem("majeur")==="1")open()}catch(e){}
+document.getElementById("ok").addEventListener("click",function(){
+  var v=document.getElementById("dob").value;
+  if(!v){err.textContent="Merci d'indiquer votre date de naissance.";return}
+  var b=new Date(v),n=new Date(),a=n.getFullYear()-b.getFullYear(),m=n.getMonth()-b.getMonth();
+  if(m<0||(m===0&&n.getDate()<b.getDate()))a--;
+  if(isNaN(a)||a<0||a>120){err.textContent="Date de naissance invalide.";return}
+  if(a<18){err.textContent="Désolé, l'accès est réservé aux personnes majeures (18 ans et plus).";return}
+  try{sessionStorage.setItem("majeur","1")}catch(e){}
+  open();
+});
+var cur=null,cal=document.getElementById("calc"),ctot=document.getElementById("ctot"),clist=document.getElementById("clist"),cinfo=document.getElementById("cinfo");
+function fm(x){return String(Math.round(x*10)/10).replace(".",",")}
+function rd(x){return Math.round(x*10)/10}
+function openCalc(i){
+  var c=C[i];
+  cur={items:c.i.map(function(x){return{n:x[0],r:x[1],a:x[2],lock:false,v:0}}),def:0};
+  cur.def=rd(cur.items.reduce(function(s,x){return s+x.r},0));
+  ctot.value=cur.def;
+  document.getElementById("ctitle").textContent=c.e+" "+c.n;
+  document.getElementById("cx").textContent=(c.x&&c.x.length)?"À ajouter aussi : "+c.x.join(", "):"";
+  clist.innerHTML=cur.items.map(function(x,k){return '<div class="row"><label for="ci'+k+'">'+esc(x.n)+'</label><input type="number" min="0" step="0.1" inputmode="decimal" id="ci'+k+'" data-k="'+k+'"><span>cl</span><button class="unl" data-k="'+k+'" title="Remettre en automatique" aria-label="Remettre en automatique" hidden>↺</button></div>'}).join("");
+  calc();cal.hidden=false;
+}
+function calc(active){
+  var t=parseFloat(ctot.value)||0,ls=0,fp=0,over=false;
+  cur.items.forEach(function(x){if(x.lock)ls+=x.v;else fp+=x.r});
+  var free=t-ls;if(free<0){free=0;over=true}
+  cur.items.forEach(function(x,k){
+    if(!x.lock)x.v=fp?free*x.r/fp:0;
+    var inp=document.getElementById("ci"+k);
+    if(inp!==active)inp.value=rd(x.v);
+    inp.classList.toggle("man",x.lock);
+    clist.querySelector('.unl[data-k="'+k+'"]').hidden=!x.lock;
+  });
+  var alc=cur.items.reduce(function(s,x){return s+(x.a?x.v:0)},0);
+  var sum=cur.items.reduce(function(s,x){return s+x.v},0);
+  cinfo.textContent=(over?"⚠️ Les doses fixées dépassent la contenance. ":"")+"Total : "+fm(sum)+" cl"+(alc>0?" · dont alcool : "+fm(alc)+" cl":"");
+}
+grid.addEventListener("keydown",function(e){if(e.key=="Enter"||e.key==" "){var c=e.target.closest(".card");if(c&&e.target===c){e.preventDefault();openCalc(+c.dataset.i)}}});
+clist.addEventListener("input",function(e){
+  var k=e.target.dataset.k;if(k==null||e.target.tagName!="INPUT")return;
+  var x=cur.items[k];x.lock=true;x.v=Math.max(parseFloat(e.target.value)||0,0);
+  if(cur.items.every(function(y){return y.lock}))ctot.value=rd(cur.items.reduce(function(s,y){return s+y.v},0));
+  calc(e.target);
+});
+clist.addEventListener("click",function(e){var b=e.target.closest(".unl");if(b){cur.items[b.dataset.k].lock=false;calc()}});
+ctot.addEventListener("input",function(){calc()});
+document.getElementById("cpre").addEventListener("click",function(e){var s=e.target.dataset.s;if(s){ctot.value=s;calc()}});
+document.getElementById("creset").addEventListener("click",function(){cur.items.forEach(function(x){x.lock=false});ctot.value=cur.def;calc()});
+document.getElementById("cclose").addEventListener("click",function(){cal.hidden=true});
+cal.addEventListener("click",function(e){if(e.target===cal)cal.hidden=true});
+document.addEventListener("keydown",function(e){if(e.key=="Escape")cal.hidden=true});
+var FAV={},SO={},byName={},idx={};
+C.forEach(function(c,i){byName[c.n]=c;idx[c.n]=i});
+try{FAV=JSON.parse(localStorage.getItem("fav")||"{}")||{};SO=JSON.parse(localStorage.getItem("soir")||"{}")||{}}catch(e){FAV={};SO={}}
+Object.keys(FAV).forEach(function(n){if(!byName[n])delete FAV[n]});
+Object.keys(SO).forEach(function(n){SO[n]=parseInt(SO[n])||0;if(!byName[n]||SO[n]<1)delete SO[n]});
+function sv(){try{localStorage.setItem("fav",JSON.stringify(FAV));localStorage.setItem("soir",JSON.stringify(SO))}catch(e){}}
+var soi=document.getElementById("soi"),lst=document.getElementById("lst"),slist=document.getElementById("slist"),sadd=document.getElementById("sadd"),stot=document.getElementById("stot"),LR=null;
+function cnt(){var t=0;Object.keys(SO).forEach(function(n){t+=SO[n]});document.getElementById("soic").textContent=document.getElementById("soic2").textContent=t;stot.textContent=t?"Total : "+t+" verres":"";return t}
+sadd.innerHTML=C.map(function(c,i){return[c.n,i]}).sort(function(a,b){return a[0].localeCompare(b[0],"fr")}).map(function(a){return '<option value="'+a[1]+'">'+esc(a[0])+'</option>'}).join("");
+function renderS(){
+  var ks=Object.keys(SO);
+  slist.innerHTML=ks.length?ks.map(function(n){return '<div class="row" data-n="'+idx[n]+'"><label>'+esc(n)+'</label><button class="qb" data-d="-1" aria-label="Moins">−</button><input type="number" min="0" value="'+SO[n]+'" aria-label="Nombre de '+esc(n)+'"><button class="qb" data-d="1" aria-label="Plus">+</button><button class="unl" data-x="1" aria-label="Retirer">🗑</button></div>'}).join(""):'<p class="cx">Aucun cocktail pour l\'instant. Ajoute-en ci-dessus, ou avec le bouton 🎉 sur les cartes.</p>';
+  cnt();
+}
+grid.addEventListener("click",function(e){
+  var c=e.target.closest(".card");if(!c)return;
+  var i=+c.dataset.i,n=C[i].n,b=e.target.closest(".ic");
+  if(!b){openCalc(i);return}
+  if(b.classList.contains("fv")){
+    if(FAV[n])delete FAV[n];else FAV[n]=1;
+    sv();
+    if(f=="fav")render();else{b.classList.toggle("on",!!FAV[n]);b.textContent=FAV[n]?"♥":"♡"}
+  }else{
+    SO[n]=(SO[n]||0)+1;sv();cnt();b.textContent="✓";
+    setTimeout(function(){b.textContent="🎉"},700);
+  }
+});
+slist.addEventListener("click",function(e){
+  var r=e.target.closest(".row"),b=e.target.closest("button");if(!r||!b)return;
+  var n=C[+r.dataset.n].n;
+  if(b.dataset.x)delete SO[n];else{SO[n]=Math.max((SO[n]||0)+ +b.dataset.d,0);if(!SO[n])delete SO[n]}
+  sv();renderS();
+});
+slist.addEventListener("input",function(e){
+  var r=e.target.closest(".row");if(!r||e.target.tagName!="INPUT")return;
+  SO[C[+r.dataset.n].n]=Math.max(parseInt(e.target.value)||0,0);sv();cnt();
+});
+slist.addEventListener("change",function(){Object.keys(SO).forEach(function(n){if(!SO[n])delete SO[n]});sv();renderS()});
+document.getElementById("sbtn").addEventListener("click",function(){
+  var n=C[+sadd.value].n,q=Math.max(parseInt(document.getElementById("sqty").value)||1,1);
+  SO[n]=(SO[n]||0)+q;sv();renderS();
+});
+document.getElementById("soib").addEventListener("click",function(){renderS();soi.hidden=false});
+document.getElementById("sclose").addEventListener("click",function(){soi.hidden=true});
+function fmq(cl){return cl>=100?fm(cl/100)+" L":fm(cl)+" cl"}
+function lister(){
+  var T={},ex={},tot=0;
+  Object.keys(SO).forEach(function(n){
+    var c=byName[n],q=SO[n];if(!c||!q)return;tot+=q;
+    c.i.forEach(function(x){var o=T[x[0]]||(T[x[0]]={cl:0,a:0});o.cl+=x[1]*q;if(x[2])o.a=1});
+    (c.x||[]).forEach(function(z){ex[z]=1});
+  });
+  var ks=Object.keys(T).sort(function(a,b){return (T[b].a-T[a].a)||a.localeCompare(b,"fr")});
+  var rows=ks.map(function(k){var o=T[k],nb=Math.ceil(o.cl/(o.a?70:100)-0.0001);return{n:k,q:fmq(o.cl),b:"≈ "+nb+" bouteille"+(nb>1?"s":"")+" de "+(o.a?"70 cl":"1 L")}});
+  return{tot:tot,rows:rows,ex:Object.keys(ex)};
+}
+document.getElementById("slistb").addEventListener("click",function(){
+  LR=lister();var b=document.getElementById("lbody");
+  b.innerHTML=!LR.tot?'<p class="cx">Ta soirée est vide : ajoute d\'abord des cocktails.</p>':'<p class="cx">Pour '+LR.tot+' verres, avec les recettes de base. Prévois une petite marge.</p><table class="tbl">'+LR.rows.map(function(r){return '<tr><td>'+esc(r.n)+'</td><td>'+r.q+'</td><td>'+r.b+'</td></tr>'}).join("")+'</table>'+(LR.ex.length?'<p class="cx"><strong>À prévoir aussi :</strong> '+LR.ex.map(function(z){return esc(z)}).join(", ")+'</p>':'');
+  lst.hidden=false;
+});
+function manual(t,btn){
+  var b=document.getElementById("lbody"),ta=b.querySelector("textarea");
+  if(!ta){ta=document.createElement("textarea");ta.readOnly=true;ta.style.cssText="width:100%;height:150px;margin-top:10px;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:.85rem system-ui,sans-serif";b.appendChild(ta)}
+  ta.value=t;ta.focus();ta.select();btn.textContent="Texte sélectionné : copie-le";
+}
+function copyTxt(t,btn){
+  function ok(){btn.textContent="Copié ✓";setTimeout(function(){btn.textContent="Copier"},2000)}
+  function fb(){
+    var ta=document.createElement("textarea"),done=false;
+    ta.value=t;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;top:0;left:0;opacity:0";
+    document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,t.length);
+    try{done=document.execCommand("copy")}catch(e){}
+    document.body.removeChild(ta);
+    if(done)ok();else manual(t,btn);
+  }
+  try{navigator.clipboard.writeText(t).then(ok).catch(fb)}catch(e){fb()}
+}
+document.getElementById("lcopy").addEventListener("click",function(){
+  if(!LR||!LR.tot)return;
+  var t="Liste de courses ("+LR.tot+" verres)\n"+LR.rows.map(function(r){return r.n+" : "+r.q+" ("+r.b+")"}).join("\n")+(LR.ex.length?"\nÀ prévoir aussi : "+LR.ex.join(", "):"");
+  copyTxt(t,this);
+});
+document.getElementById("lclose").addEventListener("click",function(){lst.hidden=true});
+lst.addEventListener("click",function(e){if(e.target===lst)lst.hidden=true});
+document.addEventListener("keydown",function(e){if(e.key=="Escape"){if(!lst.hidden)lst.hidden=true;else soi.hidden=true}});
+cnt();
+var bak=document.getElementById("bak"),btxt=document.getElementById("btxt"),bmsg=document.getElementById("bmsg");
+function snap(){return JSON.stringify({app:"carnet-cocktails",v:1,fav:FAV,soir:SO})}
+document.getElementById("bakb").addEventListener("click",function(){btxt.value=snap();bmsg.textContent="";bak.hidden=false});
+document.getElementById("bclose").addEventListener("click",function(){bak.hidden=true});
+bak.addEventListener("click",function(e){if(e.target===bak)bak.hidden=true});
+document.getElementById("bdl").addEventListener("click",function(){
+  var t=snap();btxt.value=t;
+  try{var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"application/json"}));a.download="sauvegarde-carnet-cocktails.json";document.body.appendChild(a);a.click();document.body.removeChild(a);bmsg.textContent="Fichier téléchargé ✓"}
+  catch(e){bmsg.textContent="Téléchargement impossible : copie le code ci-dessus."}
+});
+function restore(t){
+  try{
+    var o=JSON.parse(t),nf={},ns={};
+    Object.keys(o.fav||{}).forEach(function(n){if(byName[n])nf[n]=1});
+    Object.keys(o.soir||{}).forEach(function(n){var q=parseInt(o.soir[n])||0;if(byName[n]&&q>0)ns[n]=q});
+    FAV=nf;SO=ns;sv();renderS();render();
+    bmsg.textContent="Sauvegarde restaurée ✓ ("+Object.keys(nf).length+" favoris, "+cnt()+" verres)";
+  }catch(e){bmsg.textContent="Code invalide : vérifie la sauvegarde."}
+}
+document.getElementById("brest").addEventListener("click",function(){restore(btxt.value)});
+document.getElementById("bfile").addEventListener("change",function(e){
+  var fl=e.target.files[0];if(!fl)return;
+  var r=new FileReader();r.onload=function(){btxt.value=r.result;restore(r.result)};r.readAsText(fl);
+});
+document.getElementById("fab").addEventListener("click",function(){document.getElementById("soib").click()});
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+render();
+</script>
+</body>
+</html>
